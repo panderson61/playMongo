@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+  starterservice:
+    image: "panderson61/playmongo"
+    ports:
+      - "9443:9000"
+    container_name: "playmongo"

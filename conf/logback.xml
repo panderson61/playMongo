@@ -1,0 +1,61 @@
+<configuration>
+  <property scope="context" name="serviceName" value="playmongo" />
+  <conversionRule conversionWord="coloredLevel" converterClass="play.api.libs.logback.ColoredLevel" />
+
+  <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${application.home}/logs/${serviceName}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <!-- Daily rollover with compression -->
+      <fileNamePattern>${application.home}/logs/${serviceName}-log-%d{yyyy-MM-dd}_%i.gz</fileNamePattern>
+      <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+        <maxFileSize>50MB</maxFileSize>
+      </timeBasedFileNamingAndTriggeringPolicy>
+      <!-- keep 2 days worth of history -->
+      <maxHistory>2</maxHistory>
+    </rollingPolicy>
+    <encoder>
+      <pattern>${serviceName}: %date [%level] from %logger in %thread - [%contextName] %message%n%xException</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%coloredLevel %logger{15} - %message%n%xException{5}</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="SYSLOG" class="ch.qos.logback.classic.net.SyslogAppender">
+    <syslogHost>${LOGSERVICE_HOST}</syslogHost>
+    <port>${LOGSERVICE_SYSLOG_PORT}</port>
+    <facility>USER</facility>
+    <suffixPattern>${serviceName}: %msg</suffixPattern>
+  </appender>
+
+  <appender name="ASYNCSYSLOG" class="ch.qos.logback.classic.AsyncAppender">
+    <queueSize>${PLAY_LOG_QUEUE_SIZE}</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+    <appender-ref ref="SYSLOG"/>
+  </appender>
+
+  <logger name="play" level="INFO" additivity="false">
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="ASYNCSYSLOG"/>
+  </logger>
+
+  <logger name="application" level="INFO" additivity="false">
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="ASYNCSYSLOG"/>
+  </logger>
+
+  <logger name="request" level="DEBUG" additivity="false">
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="ASYNCSYSLOG"/>
+  </logger>
+
+  <root level="ERROR">
+    <appender-ref ref="STDOUT"/>
+    <appender-ref ref="FILE"/>
+    <appender-ref ref="ASYNCSYSLOG"/>
+  </root>
+
+</configuration>

@@ -1,0 +1,25 @@
+services:
+- docker
+language: scala
+scala:
+- 2.12.7
+jdk:
+- openjdk8
+cache:
+  directories:
+  - $HOME/.sbt/
+branches:
+  except:
+  - master
+before_install:
+- git clone git@github.com:picsauditing/build.git
+script:
+- source ./build/bin/setProperties
+- sbt docker:stage
+- docker build -t panderson61/playmongo ./target/docker/stage
+- docker images
+after_success:
+- ./build/bin/deployDocker
+notifications:
+  slack:
+    secure: gikALOYYbTCg5iUeMPCwhKU8Gj3IPizx0z+OnGchFWzI8245CDvXjup4KdYJ0Mg8OfbO1i6ZyhNXSx76kMFD2tAnRYWk2v3va3kFQ7AU3wsHv7fzXraMcPGQEj3NRdWGtuNO1S+mzKvAeXkAcT+V/8Lnh6KgFgiy5wEAurSNBw0Nug83zQX9fD5wlpvkqF/Xgq21CnLJJaMRDbbzVQj4ooJFFsHatJ9e4JK669Uq8rcs6JKV51mhm5cEqc1HCCfhp+BrL2vBAMPMoFWMnl4Jm+gSb8jOqJmgUYt8wfiXn3Uses5q0tiKNIFLvtv+vuxCi533qZqfugRY1CMlcpMOYKpi4lvPUzUjAtAfGQMxpGVzhHxHr9UN2G2yytphzqtrYxf4O83pY5X1ga4UVf8cdE0Ji1Gk3uD38r5/X6YAhf9rDSEJ1LwPmRT2WWv+bbcMiZYCGT0pl/el2NHnR80FQzYo5CL3wD6AXIBqmG8AokOgZHgboLF00N/RGBQSnbphegswVaglc8VjL4ni3xOE4cUe0FUCCMmEIr35Z2hOjtlTBsSnGAWaHm9RtwDUnzDfY643GF3TV2RvEvsAbq8yRhqSz1ivB4oyzl5cHMZT0Awb9y0mUlCIkT/+lHagH4yufY03Qe7ZOanErDugr6TPw5ifWBvlbLJxdx4dn//18BQ=
